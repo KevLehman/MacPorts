@@ -1,0 +1,5 @@
+.build/
+PortsApp.app/
+.swiftpm/
+*.xcuserdata
+DerivedData/
