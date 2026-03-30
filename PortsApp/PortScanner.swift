@@ -7,7 +7,7 @@ struct ProcessTreeEntry: Hashable {
 }
 
 struct PortInfo: Identifiable, Hashable {
-    let id = UUID()
+    var id: String { "\(port)-\(pid)-\(protocol_)" }
     let port: Int
     let pid: Int
     let processName: String

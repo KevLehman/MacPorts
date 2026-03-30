@@ -6,7 +6,7 @@ struct PortListView: View {
     @State private var searchText = ""
     @State private var confirmKill: PortInfo? = nil
     @State private var copiedPort: Int? = nil
-    @State private var hoveredPort: UUID? = nil
+    @State private var hoveredPort: String? = nil
 
     var filteredPorts: [PortInfo] {
         if searchText.isEmpty { return scanner.ports }
@@ -17,6 +17,11 @@ struct PortListView: View {
         }
     }
 
+    private var hoveredCommand: String? {
+        guard let id = hoveredPort else { return nil }
+        return scanner.ports.first { $0.id == id }?.fullCommand
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             header
@@ -24,6 +29,17 @@ struct PortListView: View {
             searchBar
             Divider()
             portList
+            if let cmd = hoveredCommand {
+                Divider()
+                Text(cmd)
+                    .font(.system(size: 9, design: .monospaced))
+                    .foregroundColor(.secondary.opacity(0.7))
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(Color(nsColor: .controlBackgroundColor))
+            }
         }
         .frame(width: 420, height: 480)
         .onAppear { scanner.scan() }
@@ -139,10 +155,14 @@ struct PortListView: View {
             .buttonStyle(.borderless)
             .help("Kill process \(info.pid)")
             .alert(item: $confirmKill) { portInfo in
-                Alert(
-                    title: Text("Kill Process?"),
-                    message: Text("Kill \"\(portInfo.processName)\" (PID \(String(portInfo.pid))) on port \(String(portInfo.port))?"),
-                    primaryButton: .destructive(Text("Kill")) {
+                let isSystem = portInfo.isSystemPort
+                let warning = isSystem
+                    ? "WARNING: This is a system port. Killing this process may cause system instability or break core services.\n\n"
+                    : ""
+                return Alert(
+                    title: Text(isSystem ? "Kill System Process?" : "Kill Process?"),
+                    message: Text("\(warning)Kill \"\(portInfo.processName)\" (PID \(String(portInfo.pid))) on port \(String(portInfo.port))?"),
+                    primaryButton: .destructive(Text(isSystem ? "Kill Anyway" : "Kill")) {
                         scanner.killProcess(pid: portInfo.pid)
                     },
                     secondaryButton: .cancel()
@@ -230,15 +250,6 @@ struct PortListView: View {
         .contentShape(Rectangle())
         .onHover { hovering in
             hoveredPort = hovering ? info.id : nil
-        }
-        if hoveredPort == info.id, let cmd = info.fullCommand {
-            Text(cmd)
-                .font(.system(size: 9, design: .monospaced))
-                .foregroundColor(.secondary.opacity(0.7))
-                .lineLimit(2)
-                .padding(.horizontal, 44)
-                .padding(.bottom, 6)
-                .transition(.opacity)
         }
     }
 }
