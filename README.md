@@ -2,6 +2,11 @@
 
 A lightweight macOS menu bar app that shows all open (listening) ports on your machine. Click the icon, see what's running, and kill anything you don't need.
 
+<img width="422" height="481" alt="image" src="https://github.com/user-attachments/assets/75030a25-df7d-462f-be8d-36735445df5c" />
+
+<img width="79" height="29" alt="image" src="https://github.com/user-attachments/assets/322819a6-c6b3-45cc-af40-669721ea2c0e" />
+
+
 ## Features
 
 - **Menu bar icon** with live port count badge
@@ -52,3 +57,4 @@ cp -r PortsApp.app /Applications/
 ## License
 
 MIT
+
